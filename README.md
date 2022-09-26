@@ -32,6 +32,7 @@ This section describes how to integrate various components shown in the followin
 ### Prerequisites
 
 This code pattern requires
+  * [IBM Cloud](https://cloud.ibm.com) account
   * [IBM Cloud CLI](https://www.ibm.com/cloud/cli) with [IBM Cloud Code Engine plugin](https://cloud.ibm.com/docs/cli?topic=codeengine-cli) and [IBM Cloud Container Registry plugin](https://cloud.ibm.com/docs/cli?topic=container-registry-cli-plugin-containerregcli)
   * GitHub account
   * `python3` and `pip3` if you want to run the application locally on your machine
