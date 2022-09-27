@@ -1,7 +1,7 @@
 # Add authentication and authorization to a Python Flask web application
 ### - Secure an app with IBM Cloud App ID and deploy to IBM Cloud Code Engine serverless platform
 
-This repository is associated with this code pattern overview page(TODO add link here). In this code pattern, you use the [IBM Cloud App ID service](https://www.ibm.com/cloud/app-id) to add authentication and authorization to a Python Flask application, protecting it from unauthorized access. You then deploy the app to [IBM Cloud Code Engine](https://www.ibm.com/cloud/code-engine), a fully managed serverless platform for containerized workloads.
+This repository is associated with [this code pattern overview page](https://developer.ibm.com/patterns/add-authentication-and-authorization-to-a-python-flask-web-application). In this code pattern, you use the [IBM Cloud App ID service](https://www.ibm.com/cloud/app-id) to add authentication and authorization to a Python Flask application, protecting it from unauthorized access. You then deploy the app to [IBM Cloud Code Engine](https://www.ibm.com/cloud/code-engine), a fully managed serverless platform for containerized workloads.
 
 Although this application is written in [Python Flask framework](https://flask.palletsprojects.com), it can be used as a reference for applications written in other programming languages as well:
   * How to use IBM Cloud App ID service for authentication and authorization
