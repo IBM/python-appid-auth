@@ -53,7 +53,7 @@ The API key is used in some of the commands below. It is also required by the Py
 
 IBM Cloud Container Registry namespace is used by the IBM Cloud Code Engine service to store your application docker image.
 ```
-ibmcloud cr namespace-add python-appid-icr-ns
+ibmcloud cr namespace-add <your_container_registry_namespace>
 ```
 *Notes*
 * *Use -g option to set the resource group unless you want to use the default group*
@@ -88,15 +88,15 @@ Create a Code Engine build configuration named `python-appid-bld`:
 ```
 ibmcloud ce build create --name python-appid-bld \
 --source https://github.com/IBM/python-appid-auth.git --commit main \
---image us.icr.io/python-appid-icr-ns/python-appid-img \
+--image us.icr.io/<your_container_registry_namespace>/python-appid-img \
 --registry-secret python-appid-us-icr-cred \
 --strategy dockerfile --size small
 ```
 Following information is supplied to the configuration:
 1. `--source` option specifies that the source code should be fetched from this GitHub repository. The build fetches Python source files, the Dockerfile and the requirements.txt file. requirements.txt contains list of required Python packages. The `--commit` option specifies that code is to be pulled from the main branch.
-2. `--image` option specifies that the build should store the image named `python-appid-img` in the Container Registry namespace `python-appid-icr-ns` that we previously created in the `us.icr.io` registry. The build accesses the registry using the credential named `python-appid-us-icr-cred` that you created above, which is supplied using the `--registry-secret` option.
+2. `--image` option specifies that the build should store the image named `python-appid-img` in the Container Registry namespace that you previously created in the `us.icr.io` registry. The build accesses the registry using the credential named `python-appid-us-icr-cred` that you created above, which is supplied using the `--registry-secret` option.
 
-*Note: You can optionally specify an image tag e.g. us.icr.io/python-appid-icr-ns/python-appid-img:20220817-1100. If tag is not specified, the default is latest.*
+*Note: You can optionally specify an image tag e.g. us.icr.io/<your_container_registry_namespace>/python-appid-img:20220817-1100. If tag is not specified, the default is latest.*
 
 Next, run the actual build process.
 ```
@@ -111,7 +111,7 @@ This section describes step 3 in the diagram above.
 After the build is ready, you can use the container image to deploy the application. This is done by creating a Code Engine application named `python-appid-app` as follows. This command fetches the container image from the Container Registry namespace specified by the `--image` option, it uses the registry access credential specified by the `--registry-secret` option. The `--port` option specifies the port where the application listens; Flask runs on port 5000 by default:
 ```
 ibmcloud ce application create --name python-appid-app \
---image us.icr.io/python-appid-icr-ns/python-appid-img:latest \
+--image us.icr.io/<your_container_registry_namespace>/python-appid-img:latest \
 --registry-secret python-appid-us-icr-cred \
 --port 5000 --min-scale 1
 ```
@@ -208,7 +208,7 @@ First, login using `ibmcloud login` command. Then optionally select a non-defaul
    *Note: Ignore this step if you don't want to change the image tag*
    ```
    ibmcloud ce build update --name python-appid-bld \
-   --image us.icr.io/python-appid-icr-ns/python-appid-img:<new tag>
+   --image us.icr.io/<your_container_registry_namespace>/python-appid-img:<new tag>
    ```
 2. Then run the build:
    ```
@@ -217,7 +217,7 @@ First, login using `ibmcloud login` command. Then optionally select a non-defaul
 3. After the build is ready, redeploy the application using the new container image:
    ```
    ibmcloud ce application update --name python-appid-app \
-   --image us.icr.io/python-appid-icr-ns/python-appid-img:<new tag>
+   --image us.icr.io/<your_container_registry_namespace>/python-appid-img:<new tag>
    ```
    *Note: Of course, if you did not update the build definition in step 1 to specify an explicit tag for the new container image, then do not use the `--image` option in the command above. Just run the command `ibmcloud ce application update --name python-appid-app`*
 
@@ -233,6 +233,7 @@ For developing and testing this application locally on your machine, you need to
    * Set `APPID_OAUTH_SERVER_URL` environment variable to the value of the `oAuthServerUrl` key
    * Set `APPID_REDIRECT_URI` environment variable to "http://0.0.0.0:5000/afterauth"
    * Set `SESSION_SECRET_KEY` environment variable to "some random string"
+   * Set `IBM_CLOUD_APIKEY` environment variable to the value of your IBM Cloud API key
 
 3. Install package dependencies:
    ```
@@ -382,7 +383,7 @@ Run following commands in the IBM Cloud CLI to remove the resources that you cre
 
 1. Remove the IBM Cloud Container Registry namespace:
 ```
-ibmcloud cr namespace-rm python-appid-icr-ns
+ibmcloud cr namespace-rm <your_container_registry_namespace>
 ```
 *Note: Use -g option to specify the resource group if you used that option when you created the namespace*
 
@@ -404,7 +405,11 @@ ibmcloud ce project delete --name python-appid-proj --hard
 
 ## Summary
 
-In this code pattern IBM Cloud App ID service was used to add authentication and authorization to a Python web application that uses the Flask framework. The code pattern also described deployment of the application to IBM Cloud Code Engine, a fully managed serverless platform for containerized applications. The IBM Cloud Code Engine service enables you to quickly deploy your application to make it available to your end users, and the IBM Cloud App ID service protects your application from unauthorized access.
+In this code pattern IBM Cloud App ID service was used to add authentication and authorization to a Python web application that uses the Flask framework. This code pattern has a simple authorization check: does the user have at least one role defined in App ID? You can update the logic to make it stricter. For example, check whether the user has a particular, application-scoped role. Refer to the IBM Cloud API Docs for [retrieving details of a specific role](https://cloud.ibm.com/apidocs/app-id/management#getrole). Also, read about the App ID [refresh token](https://cloud.ibm.com/docs/appid?topic=appid-tokens#refresh) to see whether you can update the authentication logic described in this code pattern to improve your user login experience.
+
+The code pattern also described deployment of the application to IBM Cloud Code Engine, a fully managed serverless platform for containerized applications. This code pattern uses IBM Cloud CLI to interact with the Code Engine service, but you can also use the [Code Engine UI](https://cloud.ibm.com/codeengine/overview). Open the UI and explore the `python-appid-proj` to see the artifacts created by `ibmcloud ce registry create`, `ibmcloud ce build create`, `ibmcloud ce buildrun submit`, `ibmcloud ce application create`, and `ibmcloud ce secret create` CLI commands in this code pattern.
+
+The IBM Cloud Code Engine service enables you to quickly deploy your application to make it available to your end users, and the IBM Cloud App ID service protects your application from unauthorized access.
 
 ## License
 
