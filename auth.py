@@ -85,22 +85,22 @@ class AppIDAuthProvider:
     @classmethod
     def check(cls, func):
         @functools.wraps(func)
-        def wrapper_check_auth(*args, **kwargs):
-            auth_active, err_msg = cls.is_auth_active()
+        def wrapper_check(*args, **kwargs):
+            auth_active, err_msg = cls._is_auth_active()
             if not auth_active:
                 if err_msg:
                     return "Internal error: " + err_msg
                 else:
                     return cls.start_auth()
             else:
-                if not cls.user_has_a_role():
+                if not cls._user_has_a_role():
                     return "Unauthorized!"
                 else:
                     return func(*args, **kwargs)
-        return wrapper_check_auth
+        return wrapper_check
 
     @classmethod
-    def is_auth_active(cls):
+    def _is_auth_active(cls):
         if cls.AUTH_ERRMSG in session:
             return False, session.pop(cls.AUTH_ERRMSG)
         elif cls.APPID_USER_TOKEN in session:
@@ -197,7 +197,7 @@ class AppIDAuthProvider:
             return err_msg
 
     @classmethod
-    def user_has_a_role(cls):
+    def _user_has_a_role(cls):
         if cls.APPID_USER_ROLES in session and session[cls.APPID_USER_ROLES]:
             return True
         else:

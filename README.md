@@ -253,13 +253,13 @@ Following diagram shows authentication and authorization flow. It uses the OIDC 
 ![python-flask-appid-runtime-diagram](https://user-images.githubusercontent.com/65959008/192333202-d0ed6b78-d232-424c-92ec-a04c561ae63f.png)
 
 1. User types an application URL that requires auth in the browser, for example the URL https://python-appid-app.rygjo8wa2xn.us-south.codeengine.appdomain.cloud/auth_route
-2. Application's backend running in the IBM Cloud Code Engine checks whether user session has a non-expired access token. (See `is_auth_active()` method in the `AppIDAuthProvider` class description below, this method gets invoked due to the `@auth.check` decorator on the route definition in app.py)
+2. Application's backend running in the IBM Cloud Code Engine checks whether user session has a non-expired access token. (See `_is_auth_active()` method in the `AppIDAuthProvider` class description below, this method gets invoked due to the `@auth.check` decorator on the route definition in app.py)
 3. If the user session doesn't have access token or the token is expired, the browser is redirected to IBM Cloud App ID's `/authorization` endpoint. (See `start_auth()` method in the `AppIDAuthProvider` class, this method also gets invoked from `@auth.check` decorator's definition)
 4. App ID in turn redirects the browser to the Identity Provider that you have configured in your App ID instance. User provides login credentials to authenticate with the Identity Provider
 5. Upon successful user login, App ID redirects the browser to application's redirect-URI that you preregistered with your App ID instance
 6. Application's backend running in the Code Engine retrieves user's access token and role(s) from the App ID. (See `after_auth()` method in the `AppIDAuthProvider` class)
 7. Then the browser is redirected to the original URL that the user had typed in the step 1 above
-8. Similar to step 2, application's backend running in the Code Engine checks whether user session has a non-expired access token. This time it does. It then checks whether the user session also has a role (See `user_has_a_role()` method in the `AppIDAuthProvider` class), and finally the URL works!
+8. Similar to step 2, application's backend running in the Code Engine checks whether user session has a non-expired access token. This time it does. It then checks whether the user session also has a role (See `_user_has_a_role()` method in the `AppIDAuthProvider` class), and finally the URL works!
 
 ### AppIDAuthProvider class in auth.py
 
@@ -308,7 +308,7 @@ The `AppIDAuthProvider` class defined in auth.py contains all the App ID service
    session[AppIDAuthProvider.APPID_USER_ROLES] = resp_json["roles"]
    ```
    Before redirecting the application to the authorization endpoint, the application logic checks whether `access_token` already exists in the session and whether it is still valid (default validity of App ID tokens is 1 hour). This provides better user experience because application is not redirected to the authorization endpoint if valid `access_token` is already present in the session. Validity of `access_token` is checked using App ID service's `introspect` endpoint as described next.
-5. The `is_auth_active()` method uses the `introspect` API provided by the App ID service to check whether the `access_token` stored in the session is still valid or not
+5. The `_is_auth_active()` method uses the `introspect` API provided by the App ID service to check whether the `access_token` stored in the session is still valid or not
    ```python
    resp = requests.post(introspect_endpoint,
                         data = {"token": token},
@@ -321,13 +321,13 @@ The `AppIDAuthProvider` class defined in auth.py contains all the App ID service
 6. The `AppIDAuthProvider` class defines the `check()` method that performs user authentication and authorization
    Following code checks whether the authentication is active / valid:
    ```python
-   auth_active, err_msg = cls.is_auth_active()
+   auth_active, err_msg = cls._is_auth_active()
    if not auth_active:
        ...
    ```
    Following code checks the authorization:
    ```python
-   if not cls.user_has_a_role():
+   if not cls._user_has_a_role():
        return "Unauthorized!"
    ...
    ```
