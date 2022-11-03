@@ -150,8 +150,7 @@ class AppIDAuthProvider:
         resp = cls._exec_user_roles_req(user_id)
         if resp.status_code == 403:
             return { "error_description": "Forbidden" }
-        resp_json = resp.json()
-        if "Error" in resp_json and "Code" in resp_json["Error"] and resp_json["Error"]["Code"] == 401:
+        if resp.status_code == 401:
             # App ID management access token has expired, retrieve it again
             err_msg = cls._get_appid_mgmt_access_token()
             if err_msg:
@@ -161,7 +160,7 @@ class AppIDAuthProvider:
             resp = cls._exec_user_roles_req(user_id)
             if resp.status_code == 403:
                 return { "error_description": "Forbidden" }
-            resp_json = resp.json()
+        resp_json = resp.json()
         if "roles" in resp_json:
             roles = []
             for role in resp_json["roles"]:
